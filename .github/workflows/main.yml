@@ -1,0 +1,75 @@
+
+name: Deployment to Main
+
+on:
+  push:
+    branches: mai
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend.yml'
+jobs:
+
+  Build_Stage:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Install NPM
+        run: sudo npm install -g npm@8.15.1
+
+      - name: Set legacy-peer-deps
+        run: sudo npm config set legacy-peer-deps true
+
+      - name: Install dependencies
+        run: |
+          echo Installing source NPM dependencies...
+          sudo npm install --force
+
+      - name: Buid the application
+        env:
+          CI: false
+        run: npm run build
+        
+        
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build
+      
+  Deploy_Testing:
+    needs: Build_Stage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build       
+      - name: Deploy to Main
+        if: github.ref == 'refs/heads/main'
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          HOSTNAME: ${{ secrets.HOSTNAME }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
+          scp -o StrictHostKeyChecking=no -i private_key -r ./build ubuntu@${{ secrets.HOSTNAME }}:/tmp/fe_build
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${{ secrets.HOSTNAME }} '
+            sudo rm -rf /var/www/html/Idea-Val/frontend/build &&
+            sudo mv /tmp/fe_build /var/www/html/Idea-Val/frontend/build &&
+            cd /var/www/html/frontend &&
+            sudo git fetch origin &&
+            sudo git checkout main &&
+            sudo git pull origin main'
+
+            
+
+      
+  
