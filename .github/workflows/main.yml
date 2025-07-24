@@ -41,7 +41,7 @@ jobs:
             # Ensure Node.js and npm are installed
   
             # Now safe to use npm commands {} +
-            npm run build
+            sudo npm run build
           '
 
       # --- BACKEND SYNC ---
