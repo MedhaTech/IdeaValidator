@@ -52,17 +52,12 @@ jobs:
           cd /var/www/html/Idea-Val/backend
           
           # Install Python dependencies
-          if [ -f requirements.txt ]; then
-              source venv/bin/activate
-              pip install -r requirements.txt
-          fi
           
           # Kill old app
           pkill -f "python app.py" || true
           pkill -f "python3 app.py" || true
           
-          # Start app in background
-          sudo nohup python3 app.py > app.log 2>&1 &
+          
           EOF
 
 
