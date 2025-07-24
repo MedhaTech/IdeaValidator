@@ -28,10 +28,10 @@ jobs:
           HOSTNAME: ${{ secrets.HOSTNAME }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
-           ssh -vvv -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
-          echo "Connected to server"
-      # rest of your script
-          # scp -o StrictHostKeyChecking=no -i private_key be.tar.gz ubuntu@${HOSTNAME}:/tmp/be.tar.gz
+           #ssh -vvv -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
+          #echo "Connected to server"
+          # rest of your script
+          scp -o StrictHostKeyChecking=no -i private_key be.tar.gz ubuntu@${HOSTNAME}:/tmp/be.tar.gz
 
       - name: Deploy backend and restart app
         env:
