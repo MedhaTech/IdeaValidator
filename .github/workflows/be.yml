@@ -1,4 +1,3 @@
-
 name: Deployment to Main
 
 on:
@@ -15,7 +14,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      # --- BACKEND SYNC ---
+
       - name: Archive backend source
         run: tar czf be.tar.gz backend
 
@@ -32,21 +31,17 @@ jobs:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           HOSTNAME: ${{ secrets.HOSTNAME }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
+          ssh -tt -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} bash << 'EOF'
             set -e
+            set -x
+            sudo mkdir -p /var/www/html/Idea-Val/backend
             cd /var/www/html/Idea-Val/backend
-            # Remove everything except venv and .env
             sudo find . -mindepth 1 -maxdepth 1 ! -name "venv" ! -name ".env" -exec sudo rm -rf {} +
-            # Extract the new code
-            sudo tar xzf /tmp/be.tar.gz -C /var/www/html/Idea-Val/ 
+            sudo tar xzf /tmp/be.tar.gz -C /var/www/html/Idea-Val/
             cd /var/www/html/Idea-Val/backend
-            # Kill old app
             pkill -f "python app.py" || true
             pkill -f "python3 app.py" || true
             source venv/bin/activate
             nohup python3 app.py > ~/app.log 2>&1 &
-          '
-
-
-              
-    
+          EOF
+          rm -f private_key
