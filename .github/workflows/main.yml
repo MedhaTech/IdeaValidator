@@ -1,192 +1,75 @@
-
 name: Deployment to Main
 
 on:
   push:
-    branches: mai
+    branches: [main]
     paths:
       - 'frontend/**'
       - 'backend/**'
       - '.github/workflows/main.yml'
+
 jobs:
-  frontend:
-    if: contains(github.event.head_commit.message, 'frontend') || github.event.pusher.name != ''
+  deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm install
+      # --- FRONTEND SYNC ---
+      - name: Archive frontend source
+        run: tar czf fe.tar.gz frontend
 
-      - name: Build frontend
-        run: npm run build
-
-      - name: Deploy frontend
+      - name: Copy frontend source to server
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           HOSTNAME: ${{ secrets.HOSTNAME }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
-          scp -o StrictHostKeyChecking=no -i private_key -r build ubuntu@${HOSTNAME}:/tmp/fe_build
+          scp -o StrictHostKeyChecking=no -i private_key fe.tar.gz ubuntu@${HOSTNAME}:/tmp/fe.tar.gz
+
+      - name: Deploy frontend and build on server
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          HOSTNAME: ${{ secrets.HOSTNAME }}
+        run: |
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
-            sudo rm -rf /var/www/html/Idea-Val/frontend/build &&
-            sudo mv /tmp/fe_build /var/www/html/Idea-Val/frontend/build'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
----- OLD =---
-  Build:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        
-      - name: Install NPM
-        run: sudo npm install -g npm@8.15.1
-
-      - name: Set legacy-peer-deps
-        run: sudo npm config set legacy-peer-deps true
-
-      - name: Install dependencies
-        run: |
-          echo Installing source NPM dependencies...
-          sudo npm install --force
-
-      - name: Buid the application
-        env:
-          CI: false
-        run: npm run build
-        
-        
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build
-          path: build
-      
-  Deploy:
-    needs: Build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build       
-      - name: Deploy to Main
-        if: github.ref == 'refs/heads/main'
+            set -e
+            cd /var/www/html/Idea-Val/frontend
+            # Remove everything except node_modules
+            find . -mindepth 1 -maxdepth 1 ! -name "node_modules" ! -name "." -exec rm -rf {} +
+            tar xzf /tmp/fe.tar.gz -C /var/www/html/Idea-Val/
+            cd /var/www/html/Idea-Val/frontend
+            sudo npm install
+            sudo npm run build
+          '
+
+      # --- BACKEND SYNC ---
+      - name: Archive backend source
+        run: tar czf be.tar.gz backend
+
+      - name: Copy backend source to server
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           HOSTNAME: ${{ secrets.HOSTNAME }}
         run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
-          scp -o StrictHostKeyChecking=no -i private_key -r ./build ubuntu@${{ secrets.HOSTNAME }}:/tmp/fe_build
-          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${{ secrets.HOSTNAME }} '
-            sudo rm -rf /var/www/html/Idea-Val/frontend/build &&
-            sudo mv /tmp/fe_build /var/www/html/Idea-Val/frontend/build &&
-            cd /var/www/html/frontend &&
-            sudo git fetch origin &&
-            sudo git checkout main &&
-            sudo git pull origin main'
+          scp -o StrictHostKeyChecking=no -i private_key be.tar.gz ubuntu@${HOSTNAME}:/tmp/be.tar.gz
 
-            
-
-      
-  
+      - name: Deploy backend and restart app
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          HOSTNAME: ${{ secrets.HOSTNAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
+            set -e
+            cd /var/www/html/Idea-Val/backend
+            # Remove everything except venv and .env (optional)
+            find . -mindepth 1 -maxdepth 1 ! -name "venv" ! -name ".env" ! -name "." -exec rm -rf {} +
+            tar xzf /tmp/be.tar.gz -C /var/www/html/Idea-Val/
+            cd /var/www/html/Idea-Val/backend
+            # Install requirements if requirements.txt exists
+            if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+            # Stop old app.py if running
+            pkill -f "python3 app.py" || true
+            nohup python app.py > app.log 2>&1 &
+          '
