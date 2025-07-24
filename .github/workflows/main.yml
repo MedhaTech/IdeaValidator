@@ -53,6 +53,7 @@ jobs:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           HOSTNAME: ${{ secrets.HOSTNAME }}
         run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
           scp -o StrictHostKeyChecking=no -i private_key be.tar.gz ubuntu@${HOSTNAME}:/tmp/be.tar.gz
 
       - name: Deploy backend and restart app
