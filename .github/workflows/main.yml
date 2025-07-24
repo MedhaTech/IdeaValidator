@@ -36,10 +36,15 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
             set -e
             cd /var/www/html/Idea-Val/frontend
-            # Remove everything except node_modules
-            sudo find . -mindepth 1 -maxdepth 1 ! -name "node_modules" ! -name "." -exec rm -rf {} +
+            
             sudo tar xzf /tmp/fe.tar.gz -C /var/www/html/Idea-Val/
-            cd /var/www/html/Idea-Val/frontend
+            # Ensure Node.js and npm are installed
+            if ! command -v npm &> /dev/null; then
+              curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
+            # Now safe to use npm commands {} +
+
             sudo npm install -f
             sudo npm run build
           '
