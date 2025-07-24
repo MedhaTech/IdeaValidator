@@ -62,7 +62,7 @@ jobs:
           pkill -f "python3 app.py" || true
           
           # Start app in background
-          nohup python3 app.py > app.log 2>&1 &
+          sudo nohup python3 app.py > app.log 2>&1 &
           EOF
 
 
