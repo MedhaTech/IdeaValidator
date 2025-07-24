@@ -38,34 +38,35 @@ jobs:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           HOSTNAME: ${{ secrets.HOSTNAME }}
         run: |
-            ssh -vvv -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
-            echo "Connected to server"
+            #ssh -vvv -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
+            #echo "Connected to server"
              # rest of your script
             
-            #ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
-                set -e
-            
-                cd /var/www/html/Idea-Val/backend
-            
-                # Remove everything except venv and .env
-                sudo find . -mindepth 1 -maxdepth 1 ! -name "venv" ! -name ".env" -exec sudo rm -rf {} +
-            
-                # Extract the new code
-                sudo tar xzf /tmp/be.tar.gz -C /var/www/html/Idea-Val/
-            
-                cd /var/www/html/Idea-Val/backend
-            
-                # Install Python dependencies if requirements.txt exists
-                if [ -f requirements.txt ]; then
-                    source venv/bin/activate
-                    pip install -r requirements.txt
-                fi
-            
-                # Stop any running app.py process
-                pkill -f "python app.py" || true
-                pkill -f "python3 app.py" || true
-            
-                # Start the app in background and log output
-                nohup python3 app.py > app.log 2>&1 &
-            '
+            ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
+              set -e
+              cd /var/www/html/Idea-Val/backend
+              
+                  # Remove everything except venv and .env
+                  sudo find . -mindepth 1 -maxdepth 1 ! -name "venv" ! -name ".env" -exec sudo rm -rf {} +
+              
+                  # Extract the new code
+                  sudo tar xzf /tmp/be.tar.gz -C /var/www/html/Idea-Val/
+              
+                  cd /var/www/html/Idea-Val/backend
+              
+                  # Install Python dependencies if requirements.txt exists
+                  if [ -f requirements.txt ]; then
+                      source venv/bin/activate
+                      pip install -r requirements.txt
+                  fi
+              
+                  # Stop any running app.py process
+                  pkill -f "python app.py" || true
+                  pkill -f "python3 app.py" || true
+              
+                  # Start the app in background and log output
+                  nohup python3 app.py > app.log 2>&1 &
+                  '
+              
+              
 
