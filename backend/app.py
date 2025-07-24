@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 DEFAULT_USERNAME = 'admin' 
 DEFAULT_PASSWORD = 'admin@123'
 
-# Directory for temporary processed files
+# Directory for temporary prsocessed files
 TEMP_FILE_DIR = 'temp_processed_files'
 def init_db():
     # Ensure the temporary file directory exists
