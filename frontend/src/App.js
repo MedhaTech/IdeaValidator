@@ -45,7 +45,7 @@ function App() {
   const login = async () => {
     try {
       // Make a POST request to the login endpoint
-      await axios.post("http://localhost:5000/login", user, {
+      await axios.post("http://ec2-13-204-80-238.ap-south-1.compute.amazonaws.com:5000/login", user, {
         withCredentials: true, // Send cookies with the request
       });
       setLoggedIn(true); // Set loggedIn to true on successful login
@@ -106,7 +106,7 @@ function App() {
 
     try {
       // Make a POST request to the upload endpoint for validation
-      const res = await axios.post("http://localhost:5000/upload", formData, {
+      const res = await axios.post("http://ec2-13-204-80-238.ap-south-1.compute.amazonaws.com:5000/upload", formData, {
         withCredentials: true, // Send cookies with the request
       });
 
@@ -550,7 +550,7 @@ function App() {
             }}>
               {showDownload && (
                 <button
-                  onClick={() => window.open("http://localhost:5000/download", "_blank")}
+                  onClick={() => window.open("http://ec2-13-204-80-238.ap-south-1.compute.amazonaws.com:5000/download", "_blank")}
                   style={{
                     backgroundColor: '#6b21a8', // bg-purple-700
                     color: '#fff',
