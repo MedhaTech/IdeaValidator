@@ -6,10 +6,127 @@ on:
     branches: mai
     paths:
       - 'frontend/**'
-      - '.github/workflows/frontend.yml'
+      - 'backend/**'
+      - '.github/workflows/main.yml'
 jobs:
+  frontend:
+    if: contains(github.event.head_commit.message, 'frontend') || github.event.pusher.name != ''
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
 
-  Build_Stage:
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Deploy frontend
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          HOSTNAME: ${{ secrets.HOSTNAME }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
+          scp -o StrictHostKeyChecking=no -i private_key -r build ubuntu@${HOSTNAME}:/tmp/fe_build
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
+            sudo rm -rf /var/www/html/Idea-Val/frontend/build &&
+            sudo mv /tmp/fe_build /var/www/html/Idea-Val/frontend/build'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---- OLD =---
+  Build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
@@ -40,8 +157,8 @@ jobs:
           name: build
           path: build
       
-  Deploy_Testing:
-    needs: Build_Stage
+  Deploy:
+    needs: Build
     runs-on: ubuntu-latest
 
     steps:
