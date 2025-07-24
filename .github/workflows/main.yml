@@ -37,7 +37,7 @@ jobs:
             set -e
             cd /var/www/html/Idea-Val/frontend
             # Remove everything except node_modules
-            find . -mindepth 1 -maxdepth 1 ! -name "node_modules" ! -name "." -exec rm -rf {} +
+            sudo find . -mindepth 1 -maxdepth 1 ! -name "node_modules" ! -name "." -exec rm -rf {} +
             tar xzf /tmp/fe.tar.gz -C /var/www/html/Idea-Val/
             cd /var/www/html/Idea-Val/frontend
             sudo npm install
@@ -64,7 +64,7 @@ jobs:
             set -e
             cd /var/www/html/Idea-Val/backend
             # Remove everything except venv and .env (optional)
-            find . -mindepth 1 -maxdepth 1 ! -name "venv" ! -name ".env" ! -name "." -exec rm -rf {} +
+            sudo find . -mindepth 1 -maxdepth 1 ! -name "venv" ! -name ".env" ! -name "." -exec rm -rf {} +
             tar xzf /tmp/be.tar.gz -C /var/www/html/Idea-Val/
             cd /var/www/html/Idea-Val/backend
             # Install requirements if requirements.txt exists
