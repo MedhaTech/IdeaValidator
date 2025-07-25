@@ -361,4 +361,4 @@ def cleanup_old_files():
         logging.warning(f"Temporary directory '{TEMP_FILE_DIR}' not found during cleanup attempt. Skipping cleanup.")
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host="0.0.0.0", port=5000)
