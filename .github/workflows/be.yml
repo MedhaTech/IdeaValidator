@@ -31,7 +31,7 @@ jobs:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           HOSTNAME: ${{ secrets.HOSTNAME }}
         run: |
-          ssh -tt -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} bash << 'EOF'
+          ssh -tt -o StrictHostKeyChecking=no -i private_key ubuntu@${HOSTNAME} '
             set -e
             set -x
             sudo mkdir -p /var/www/html/Idea-Val/backend
@@ -39,9 +39,4 @@ jobs:
             sudo find . -mindepth 1 -maxdepth 1 ! -name "venv" ! -name ".env" -exec sudo rm -rf {} +
             sudo tar xzf /tmp/be.tar.gz -C /var/www/html/Idea-Val/
             cd /var/www/html/Idea-Val/backend
-            pkill -f "python app.py" || true
-            pkill -f "python3 app.py" || true
-            source venv/bin/activate
-            nohup python3 app.py > ~/app.log 2>&1 &
-          EOF
-          rm -f private_key
+          '
