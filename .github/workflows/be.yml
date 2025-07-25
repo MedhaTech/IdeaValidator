@@ -38,7 +38,9 @@ jobs:
             cd /var/www/html/Idea-Val/backend
             sudo find . -mindepth 1 -maxdepth 1 ! -name "venv" ! -name ".env" -exec sudo rm -rf {} +
             sudo tar xzf /tmp/be.tar.gz -C /var/www/html/Idea-Val/
+            sudo chown -R ubuntu:ubuntu /var/www/html/Idea-Val/backend
             cd /var/www/html/Idea-Val/backend
             source venv/bin/activate
             nohup python3 app.py > one.log 2>&1 &
           '
+
