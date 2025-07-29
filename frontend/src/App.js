@@ -48,7 +48,7 @@ function App() {
   const login = async () => {
     try {
       // Make a POST request to the login endpoint
-      await axios.post("http://localhost:5000/login", user, {
+      await axios.post("http://13.204.80.238:5000/login", user, {
         withCredentials: true, // Send cookies with the request
       });
       setLoggedIn(true); // Set loggedIn to true on successful login
@@ -93,7 +93,7 @@ function App() {
   // Function to handle user logout
   const logout = async () => {
     try {
-      await axios.post("http://localhost:5000/logout", {}, {
+      await axios.post("http://13.204.80.238:5000/logout", {}, {
         withCredentials: true,
       });
       setLoggedIn(false);
@@ -134,7 +134,7 @@ function App() {
 
     try {
       // Make a POST request to the upload endpoint for validation
-         const res = await axios.post("http://localhost:5000/upload", formData, {
+         const res = await axios.post("http://13.204.80.238:5000/upload", formData, {
         withCredentials: true, // Send cookies with the request
       });
 
@@ -1010,7 +1010,7 @@ function App() {
             }}>
               {showDownload && (
                 <button
-                  onClick={() => window.open("http://localhost:5000/download", "_blank")}
+                  onClick={() => window.open("http://13.204.80.238:5000/download", "_blank")}
                   style={{
                     backgroundColor: '#8b5cf6', // bg-purple-500
                     color: '#fff',
