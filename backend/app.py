@@ -79,7 +79,7 @@ def is_valid_email(email):
         return False
     return bool(EMAIL_REGEX.match(str(email).strip()))
 
-# --- STOP WORDS for NLP enhancement ---
+# ---  STOP WORDS for NLP enhancement ---
 STOP_WORDS = set([
     'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves',
     'he', 'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's", 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves',
