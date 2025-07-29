@@ -2,11 +2,10 @@ name: Deployment to Main
 
 on:
   push:
-    branches: [main]
+    branches: main
     paths:
       - 'frontend/**'
-      - 'backend/**'
-      - '.github/workflows/main.yml'
+
 
 jobs:
   deploy:
