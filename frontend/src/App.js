@@ -12,7 +12,7 @@ import {
   ArcElement,
 } from "chart.js";
 
-// Register all ne cessary Chart.js components
+// Register all ne cessary Chart .js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
