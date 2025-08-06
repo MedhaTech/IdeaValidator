@@ -39,6 +39,9 @@ function App() {
   // NEW STATE: Control visibility of the landing page
   const [showLandingPage, setShowLandingPage] = useState(true);
 
+  // NEW STATE: For language detection result
+  const [detectedLanguage, setDetectedLanguage] = useState(null);
+
   // Refs for chart canvases to enable image download
   const validationStatusChartRef = useRef(null);
   const filterChartRef = useRef(null);
@@ -48,6 +51,7 @@ function App() {
   const login = async () => {
     try {
       // Make a POST request to the login endpoint
+      // IMPORTANT: REPLACE THIS IP ADDRESS with your server's actual IP or domain
       await axios.post("http://localhost:5000/login", user, {
         withCredentials: true, // Send cookies with the request
       });
@@ -93,6 +97,7 @@ function App() {
   // Function to handle user logout
   const logout = async () => {
     try {
+      // IMPORTANT: REPLACE THIS IP ADDRESS with your server's actual IP or domain
       await axios.post("http://localhost:5000/logout", {}, {
         withCredentials: true,
       });
@@ -106,11 +111,13 @@ function App() {
       setStatusCounts({});
       setAllRejectionData(null);
       setFilterData(null);
+      setDetectedLanguage(null); // Reset detected language on logout
     } catch (error) {
       console.error("Logout failed:", error);
       // Even if logout fails on server, client-side state should be reset
       setLoggedIn(false);
       setShowLandingPage(true);
+      setDetectedLanguage(null); // Reset detected language even on failed logout
     }
   };
 
@@ -123,6 +130,7 @@ function App() {
     setStatusCounts({});
     setAllRejectionData(null); // Reset all rejection data
     setFilterData(null); // Reset filter data
+    setDetectedLanguage(null); // Reset detected language on new file upload
   };
 
   // Function to handle the validation process
@@ -134,7 +142,8 @@ function App() {
 
     try {
       // Make a POST request to the upload endpoint for validation
-         const res = await axios.post("http://localhost:5000/upload", formData, {
+      // IMPORTANT: REPLACE THIS IP ADDRESS with your server's actual IP or domain
+      const res = await axios.post("http://localhost:5000/upload", formData, {
         withCredentials: true, // Send cookies with the request
       });
 
@@ -195,6 +204,16 @@ function App() {
         setFilterData(null); // Set to null if no data or empty array
       }
 
+      // NEW: Make a request to check language after successful validation
+      try {
+        // IMPORTANT: REPLACE THIS IP ADDRESS with your server's actual IP or domain
+        const langRes = await axios.post("http://localhost:5000/detect_file_language", formData, { withCredentials: true });
+        setDetectedLanguage(langRes.data.language); // Assuming the backend sends back { language: "English" }
+      } catch (langError) {
+        console.error("Language detection error:", langError);
+        setDetectedLanguage("Could not detect language.");
+      }
+
     } catch (err) {
       // Display a custom message box for validation failure
       const messageBox = document.createElement('div');
@@ -229,6 +248,7 @@ function App() {
       `;
       document.body.appendChild(messageBox);
       console.error("Validation error:", err);
+      setDetectedLanguage(null); // Clear language if validation fails
     } finally {
       setLoading(false); // Hide loading indicator
     }
@@ -1087,6 +1107,23 @@ function App() {
                 </div>
               )}
             </div>
+            {/* NEW: Display Detected Language */}
+            {detectedLanguage && (
+              <div style={{
+                marginTop: '1.5rem',
+                fontSize: '1.125rem',
+                fontWeight: '600',
+                color: '#e0e7ff',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                padding: '1rem',
+                borderRadius: '0.5rem',
+                boxShadow: '0 0 15px rgba(255, 255, 255, 0.1), inset 0 0 8px rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                textAlign: 'center',
+              }}>
+                <strong style={{ color: '#7dd3fc' }}>Detected Language:</strong> {detectedLanguage}
+              </div>
+            )}
           </div>
         )}
 
